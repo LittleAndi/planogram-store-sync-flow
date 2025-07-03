@@ -168,7 +168,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectItem value="*">All categories</SelectItem>
                     <SelectItem value="Small">Small</SelectItem>
                     <SelectItem value="Medium">Medium</SelectItem>
                     <SelectItem value="Large">Large</SelectItem>
@@ -183,7 +183,7 @@ const Dashboard = () => {
                     <SelectValue placeholder="All states" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All states</SelectItem>
+                    <SelectItem value="*">All states</SelectItem>
                     <SelectItem value="Prepared">Prepared</SelectItem>
                     <SelectItem value="Planned">Planned</SelectItem>
                     <SelectItem value="Executed">Executed</SelectItem>
