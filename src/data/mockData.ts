@@ -1,4 +1,3 @@
-
 // Mock data for stores
 export const mockStores = Array.from({ length: 75 }, (_, i) => {
   const storeId = `S-${(i + 1).toString().padStart(3, '0')}`;
@@ -54,8 +53,8 @@ export const mockPlanograms = Array.from({ length: 30 }, (_, i) => {
   };
 });
 
-// Generate assignments (planogram-store mappings)
-export const mockAssignments = Array.from({ length: 150 }, (_, i) => {
+// Generate assignments (planogram-store mappings) - ~20 per store
+export const mockAssignments = Array.from({ length: 1500 }, (_, i) => {
   const store = mockStores[i % mockStores.length];
   const planogram = mockPlanograms[i % mockPlanograms.length];
   const lifecycles = ['Prepared', 'Planned', 'Executed', 'Phased Out'];
