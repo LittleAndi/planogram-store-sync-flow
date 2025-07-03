@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -221,7 +220,7 @@ const LifecycleManagement = () => {
                   <TableHead className="w-12">
                     <Checkbox
                       checked={selectedItems.length === assignments.length}
-                      onCheckedChange={handleSelectAll}
+                      onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
                     />
                   </TableHead>
                   <TableHead>Store</TableHead>
@@ -240,7 +239,7 @@ const LifecycleManagement = () => {
                     <TableCell>
                       <Checkbox
                         checked={selectedItems.includes(assignment.id)}
-                        onCheckedChange={(checked) => handleSelectItem(assignment.id, checked)}
+                        onCheckedChange={(checked: boolean) => handleSelectItem(assignment.id, checked)}
                       />
                     </TableCell>
                     <TableCell className="font-medium">
