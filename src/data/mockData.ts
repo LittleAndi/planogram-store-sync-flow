@@ -1,3 +1,4 @@
+
 // Mock data for stores
 export const mockStores = Array.from({ length: 75 }, (_, i) => {
   const storeId = `S-${(i + 1).toString().padStart(3, '0')}`;
@@ -26,6 +27,48 @@ export const mockStores = Array.from({ length: 75 }, (_, i) => {
   };
 });
 
+// Mock data for products
+export const mockProducts = Array.from({ length: 150 }, (_, i) => {
+  const productNames = [
+    'Coca-Cola 12oz', 'Pepsi 12oz', 'Sprite 12oz', 'Orange Crush', 'Dr Pepper',
+    'Lays Original Chips', 'Doritos Nacho', 'Cheetos Puffs', 'Fritos Corn Chips', 'Pringles Original',
+    'Snickers Bar', 'Kit Kat', 'Twix', 'Reese\'s Cups', 'M&Ms Peanut',
+    'Wonder Bread', 'Skippy Peanut Butter', 'Jif Peanut Butter', 'Welch\'s Jelly', 'Heinz Ketchup',
+    'Tide Detergent', 'Downy Fabric Softener', 'Bounty Paper Towels', 'Charmin Toilet Paper', 'Kleenex Tissues',
+    'Colgate Toothpaste', 'Crest Toothpaste', 'Listerine Mouthwash', 'Head & Shoulders Shampoo', 'Pantene Shampoo',
+    'Apple iPhone Case', 'Samsung Charger', 'Bluetooth Headphones', 'Phone Screen Protector', 'Car Charger',
+    'Nike Running Shoes', 'Adidas Sneakers', 'Under Armour T-Shirt', 'Levi\'s Jeans', 'Champion Hoodie',
+    'Tylenol Pain Relief', 'Advil Ibuprofen', 'Band-Aid Bandages', 'Neosporin Cream', 'Vitamin C Tablets'
+  ];
+  
+  const brands = [
+    'Coca-Cola', 'PepsiCo', 'Frito-Lay', 'Mars', 'Hershey\'s', 'Wonder', 'Skippy', 'Jif', 'Welch\'s', 'Heinz',
+    'Procter & Gamble', 'Colgate', 'Johnson & Johnson', 'Nike', 'Adidas', 'Under Armour', 'Levi\'s', 'Champion'
+  ];
+  
+  const categories = [
+    'Beverages', 'Snacks', 'Candy', 'Bread & Bakery', 'Condiments', 'Household', 'Personal Care', 
+    'Electronics', 'Apparel', 'Health & Wellness'
+  ];
+  
+  const displayTypes = ['unit', 'case', 'tray', 'display'];
+  
+  return {
+    id: `PRD-${(i + 1).toString().padStart(4, '0')}`,
+    name: productNames[i % productNames.length],
+    brand: brands[i % brands.length],
+    category: categories[i % categories.length],
+    sku: `SKU${(i + 1).toString().padStart(6, '0')}`,
+    price: parseFloat((Math.random() * 50 + 1).toFixed(2)),
+    displayType: displayTypes[i % displayTypes.length],
+    shelfPosition: {
+      shelf: Math.floor(i / 10) % 5 + 1,
+      position: (i % 10) + 1,
+      facings: Math.floor(Math.random() * 4) + 1
+    }
+  };
+});
+
 // Mock data for planograms
 export const mockPlanograms = Array.from({ length: 30 }, (_, i) => {
   const planogramId = `P-${(12345 + i).toString()}`;
@@ -49,7 +92,9 @@ export const mockPlanograms = Array.from({ length: 30 }, (_, i) => {
     createdDate: new Date(2025, (i % 12), 1 + (i % 28)).toISOString().split('T')[0],
     version: `${Math.floor(i / 10) + 1}.${(i % 10) + 1}`,
     sizeVariants: sizeVariants.slice(0, 3 + (i % 3)), // Each planogram has 3-5 size variants
-    lifecycle: lifecycles[i % lifecycles.length]
+    lifecycle: lifecycles[i % lifecycles.length],
+    imageUrl: `https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop&auto=format`,
+    productIds: mockProducts.slice(i * 5, (i * 5) + 8 + (i % 5)).map(p => p.id) // 8-13 products per planogram
   };
 });
 

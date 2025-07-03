@@ -22,18 +22,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, Calendar, User, Building2 } from 'lucide-react';
-import { mockPlanograms, mockAssignments, mockStores } from '../data/mockData';
+import { ArrowLeft, Plus, Calendar, User, Building2, Package, DollarSign } from 'lucide-react';
+import { mockPlanograms, mockAssignments, mockStores, mockProducts } from '../data/mockData';
 
 const PlanogramDetails = () => {
   const { id } = useParams();
-  const [selectedSizeVariant, setSelectedSizeVariant] = useState('M');
 
   // Find the planogram by ID
   const planogram = mockPlanograms.find(p => p.id === id) || mockPlanograms[0];
   
   // Get assignments for this planogram
   const planogramAssignments = mockAssignments.filter(a => a.planogramId === planogram.id);
+  
+  // Get products for this planogram
+  const planogramProducts = mockProducts.filter(p => planogram.productIds.includes(p.id));
 
   const getLifecycleBadgeVariant = (state: string) => {
     switch (state) {
@@ -41,6 +43,16 @@ const PlanogramDetails = () => {
       case 'Planned': return 'secondary';
       case 'Prepared': return 'outline';
       case 'Phased Out': return 'destructive';
+      default: return 'secondary';
+    }
+  };
+
+  const getDisplayTypeBadgeVariant = (type: string) => {
+    switch (type) {
+      case 'unit': return 'default';
+      case 'case': return 'secondary';
+      case 'tray': return 'outline';
+      case 'display': return 'destructive';
       default: return 'secondary';
     }
   };
@@ -133,84 +145,210 @@ const PlanogramDetails = () => {
           </CardContent>
         </Card>
 
-        {/* Size Variant Tabs */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Store Assignments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Stores using this planogram</h3>
-                <Badge variant="outline">
-                  {planogramAssignments.length} assignments
-                </Badge>
-              </div>
-              
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Store Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Size Variant</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned By</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {planogramAssignments.map((assignment) => (
-                    <TableRow key={assignment.id}>
-                      <TableCell className="font-medium">
-                        <Link 
-                          to={`/stores/${assignment.storeId}`}
-                          className="text-blue-600 hover:underline"
-                        >
-                          {assignment.store}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{assignment.storeCategory}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{assignment.sizeVariant}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getLifecycleBadgeVariant(assignment.lifecycleState)}>
-                          {assignment.lifecycleState}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <User className="mr-1 h-3 w-3" />
-                          {assignment.assignedBy}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {assignment.startDate}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {assignment.endDate}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            Edit
-                          </Button>
-                          <Button size="sm" variant="outline">
-                            Remove
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+        {/* Tabs for different views */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="assignments">Store Assignments</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            {/* Planogram Image */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Planogram Layout</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="relative">
+                  <img 
+                    src={planogram.imageUrl} 
+                    alt={`${planogram.name} layout`}
+                    className="w-full h-96 object-cover rounded-lg border"
+                  />
+                  <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded text-sm">
+                    {planogramProducts.length} Products
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Package className="h-8 w-8 text-blue-600" />
+                    <div>
+                      <p className="text-2xl font-bold">{planogramProducts.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Products</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Building2 className="h-8 w-8 text-green-600" />
+                    <div>
+                      <p className="text-2xl font-bold">{planogramAssignments.length}</p>
+                      <p className="text-sm text-muted-foreground">Store Assignments</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="h-8 w-8 text-orange-600" />
+                    <div>
+                      <p className="text-2xl font-bold">
+                        ${planogramProducts.reduce((sum, product) => sum + product.price, 0).toFixed(2)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Total Product Value</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Product List</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  All products included in this planogram
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Brand</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>SKU</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Display Type</TableHead>
+                      <TableHead>Shelf Position</TableHead>
+                      <TableHead>Facings</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {planogramProducts.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-medium">{product.name}</TableCell>
+                        <TableCell>{product.brand}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{product.category}</Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {product.sku}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          ${product.price.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getDisplayTypeBadgeVariant(product.displayType)}>
+                            {product.displayType}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          Shelf {product.shelfPosition.shelf}, Pos {product.shelfPosition.position}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {product.shelfPosition.facings}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="assignments" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Store Assignments</CardTitle>
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-muted-foreground">
+                    Stores using this planogram
+                  </p>
+                  <Badge variant="outline">
+                    {planogramAssignments.length} assignments
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Store Name</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Size Variant</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Assigned By</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {planogramAssignments.map((assignment) => (
+                      <TableRow key={assignment.id}>
+                        <TableCell className="font-medium">
+                          <Link 
+                            to={`/stores/${assignment.storeId}`}
+                            className="text-blue-600 hover:underline"
+                          >
+                            {assignment.store}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{assignment.storeCategory}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{assignment.sizeVariant}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getLifecycleBadgeVariant(assignment.lifecycleState)}>
+                            {assignment.lifecycleState}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <User className="mr-1 h-3 w-3" />
+                            {assignment.assignedBy}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {assignment.startDate}
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {assignment.endDate}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button size="sm" variant="outline">
+                              Edit
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              Remove
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
