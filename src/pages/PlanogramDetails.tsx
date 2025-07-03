@@ -23,53 +23,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { ArrowLeft, Plus, Calendar, User, Building2 } from 'lucide-react';
+import { mockPlanograms, mockAssignments, mockStores } from '../data/mockData';
 
 const PlanogramDetails = () => {
   const { id } = useParams();
   const [selectedSizeVariant, setSelectedSizeVariant] = useState('M');
 
-  // Mock planogram data
-  const planogram = {
-    id: 'P-12345',
-    name: 'Summer Drinks Display',
-    description: 'Optimized layout for summer beverage products featuring premium positioning for high-margin items.',
-    createdDate: '2025-05-01',
-    version: '2.1',
-    sizeVariants: ['XS', 'S', 'M', 'L', 'XL'],
-    lifecycle: 'Prepared',
-    assignments: [
-      {
-        id: 1,
-        storeName: 'Downtown Store',
-        storeCategory: 'Medium',
-        lifecycle: 'Executed',
-        assignedBy: 'John Doe',
-        assignedDate: '2025-06-01',
-        startDate: '2025-06-15',
-        endDate: '2025-09-15'
-      },
-      {
-        id: 2,
-        storeName: 'Mall Location',
-        storeCategory: 'Large',
-        lifecycle: 'Planned',
-        assignedBy: 'Jane Smith',
-        assignedDate: '2025-06-10',
-        startDate: '2025-07-01',
-        endDate: '2025-10-01'
-      },
-      {
-        id: 3,
-        storeName: 'Suburban Branch',
-        storeCategory: 'Small',
-        lifecycle: 'Prepared',
-        assignedBy: 'Mike Johnson',
-        assignedDate: '2025-06-05',
-        startDate: '2025-07-15',
-        endDate: '2025-10-15'
-      }
-    ]
-  };
+  // Find the planogram by ID
+  const planogram = mockPlanograms.find(p => p.id === id) || mockPlanograms[0];
+  
+  // Get assignments for this planogram
+  const planogramAssignments = mockAssignments.filter(a => a.planogramId === planogram.id);
 
   const getLifecycleBadgeVariant = (state: string) => {
     switch (state) {
@@ -172,89 +136,79 @@ const PlanogramDetails = () => {
         {/* Size Variant Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle>Size Variants & Store Assignments</CardTitle>
+            <CardTitle>Store Assignments</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={selectedSizeVariant} onValueChange={setSelectedSizeVariant}>
-              <TabsList className="grid w-full grid-cols-5">
-                {planogram.sizeVariants.map((size) => (
-                  <TabsTrigger key={size} value={size}>
-                    Size {size}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">Stores using this planogram</h3>
+                <Badge variant="outline">
+                  {planogramAssignments.length} assignments
+                </Badge>
+              </div>
               
-              {planogram.sizeVariants.map((size) => (
-                <TabsContent key={size} value={size}>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-medium">Stores using Size {size}</h3>
-                      <Badge variant="outline">
-                        {planogram.assignments.length} assignments
-                      </Badge>
-                    </div>
-                    
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Store Name</TableHead>
-                          <TableHead>Category</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Assigned By</TableHead>
-                          <TableHead>Start Date</TableHead>
-                          <TableHead>End Date</TableHead>
-                          <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {planogram.assignments.map((assignment) => (
-                          <TableRow key={assignment.id}>
-                            <TableCell className="font-medium">
-                              <Link 
-                                to={`/stores/${assignment.id}`}
-                                className="text-blue-600 hover:underline"
-                              >
-                                {assignment.storeName}
-                              </Link>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline">{assignment.storeCategory}</Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={getLifecycleBadgeVariant(assignment.lifecycle)}>
-                                {assignment.lifecycle}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              <div className="flex items-center">
-                                <User className="mr-1 h-3 w-3" />
-                                {assignment.assignedBy}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {assignment.startDate}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                              {assignment.endDate}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
-                                  Edit
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  Remove
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Store Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Size Variant</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Assigned By</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {planogramAssignments.map((assignment) => (
+                    <TableRow key={assignment.id}>
+                      <TableCell className="font-medium">
+                        <Link 
+                          to={`/stores/${assignment.storeId}`}
+                          className="text-blue-600 hover:underline"
+                        >
+                          {assignment.store}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{assignment.storeCategory}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{assignment.sizeVariant}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getLifecycleBadgeVariant(assignment.lifecycleState)}>
+                          {assignment.lifecycleState}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <User className="mr-1 h-3 w-3" />
+                          {assignment.assignedBy}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {assignment.startDate}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {assignment.endDate}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button size="sm" variant="outline">
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="outline">
+                            Remove
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

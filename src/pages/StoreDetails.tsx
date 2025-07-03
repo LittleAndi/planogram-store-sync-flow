@@ -13,49 +13,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ArrowLeft, MapPin, Building2, Calendar, Plus } from 'lucide-react';
+import { mockStores, mockAssignments } from '../data/mockData';
 
 const StoreDetails = () => {
   const { id } = useParams();
 
-  // Mock store data
-  const store = {
-    id: 'S-001',
-    name: 'Downtown Store',
-    category: 'Medium',
-    region: 'North Region',
-    address: '123 Main Street, Downtown City',
-    manager: 'Sarah Johnson',
-    openDate: '2020-03-15',
-    planograms: [
-      {
-        id: 'P-12345',
-        name: 'Summer Drinks Display',
-        sizeVariant: 'M',
-        lifecycle: 'Executed',
-        startDate: '2025-06-15',
-        endDate: '2025-09-15',
-        assignedBy: 'John Doe'
-      },
-      {
-        id: 'P-12346',
-        name: 'Winter Fashion Layout',
-        sizeVariant: 'M',
-        lifecycle: 'Planned',
-        startDate: '2025-10-01',
-        endDate: '2025-12-31',
-        assignedBy: 'Jane Smith'
-      },
-      {
-        id: 'P-12347',
-        name: 'Electronics Corner',
-        sizeVariant: 'S',
-        lifecycle: 'Phased Out',
-        startDate: '2025-03-01',
-        endDate: '2025-05-31',
-        assignedBy: 'Mike Johnson'
-      }
-    ]
-  };
+  // Find the store by ID
+  const store = mockStores.find(s => s.id === id) || mockStores[0];
+  
+  // Get assignments for this store
+  const storeAssignments = mockAssignments.filter(a => a.storeId === store.id);
 
   const getLifecycleBadgeVariant = (state: string) => {
     switch (state) {
@@ -138,7 +105,7 @@ const StoreDetails = () => {
             <div className="flex justify-between items-center">
               <CardTitle>Assigned Planograms</CardTitle>
               <Badge variant="outline">
-                {store.planograms.length} planograms
+                {storeAssignments.length} planograms
               </Badge>
             </div>
           </CardHeader>
@@ -156,33 +123,33 @@ const StoreDetails = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {store.planograms.map((planogram) => (
-                  <TableRow key={planogram.id}>
+                {storeAssignments.map((assignment) => (
+                  <TableRow key={assignment.id}>
                     <TableCell className="font-medium">
                       <Link 
-                        to={`/planograms/${planogram.id}`}
+                        to={`/planograms/${assignment.planogramId}`}
                         className="text-blue-600 hover:underline"
                       >
-                        <div>{planogram.id}</div>
-                        <div className="text-sm text-muted-foreground">{planogram.name}</div>
+                        <div>{assignment.planogramId}</div>
+                        <div className="text-sm text-muted-foreground">{assignment.planogramName}</div>
                       </Link>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{planogram.sizeVariant}</Badge>
+                      <Badge variant="secondary">{assignment.sizeVariant}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getLifecycleBadgeVariant(planogram.lifecycle)}>
-                        {planogram.lifecycle}
+                      <Badge variant={getLifecycleBadgeVariant(assignment.lifecycleState)}>
+                        {assignment.lifecycleState}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {planogram.startDate}
+                      {assignment.startDate}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {planogram.endDate}
+                      {assignment.endDate}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {planogram.assignedBy}
+                      {assignment.assignedBy}
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
@@ -206,7 +173,7 @@ const StoreDetails = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-green-600">
-                {store.planograms.filter(p => p.lifecycle === 'Executed').length}
+                {storeAssignments.filter(p => p.lifecycleState === 'Executed').length}
               </div>
               <p className="text-xs text-muted-foreground">Active Planograms</p>
             </CardContent>
@@ -214,7 +181,7 @@ const StoreDetails = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-600">
-                {store.planograms.filter(p => p.lifecycle === 'Planned').length}
+                {storeAssignments.filter(p => p.lifecycleState === 'Planned').length}
               </div>
               <p className="text-xs text-muted-foreground">Planned</p>
             </CardContent>
@@ -222,7 +189,7 @@ const StoreDetails = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-yellow-600">
-                {store.planograms.filter(p => p.lifecycle === 'Prepared').length}
+                {storeAssignments.filter(p => p.lifecycleState === 'Prepared').length}
               </div>
               <p className="text-xs text-muted-foreground">Prepared</p>
             </CardContent>
@@ -230,7 +197,7 @@ const StoreDetails = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-red-600">
-                {store.planograms.filter(p => p.lifecycle === 'Phased Out').length}
+                {storeAssignments.filter(p => p.lifecycleState === 'Phased Out').length}
               </div>
               <p className="text-xs text-muted-foreground">Phased Out</p>
             </CardContent>

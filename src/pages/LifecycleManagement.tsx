@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,51 +29,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ArrowLeft, Calendar, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { mockAssignments } from '../data/mockData';
 
 const LifecycleManagement = () => {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [newLifecycleStatus, setNewLifecycleStatus] = useState('');
   const [scheduledDate, setScheduledDate] = useState('');
-
-  // Mock data for assignments
-  const assignments = [
-    {
-      id: 1,
-      store: 'Downtown Store',
-      storeCategory: 'Medium',
-      planogramId: 'P-12345',
-      planogramName: 'Summer Drinks',
-      sizeVariant: 'M',
-      currentLifecycle: 'Planned',
-      lastUpdated: '2025-06-15',
-      scheduledTransition: '2025-07-01'
-    },
-    {
-      id: 2,
-      store: 'Mall Location',
-      storeCategory: 'Large',
-      planogramId: 'P-12346',
-      planogramName: 'Winter Fashion',
-      sizeVariant: 'L',
-      currentLifecycle: 'Prepared',
-      lastUpdated: '2025-07-01',
-      scheduledTransition: null
-    },
-    {
-      id: 3,
-      store: 'Airport Shop',
-      storeCategory: 'Small',
-      planogramId: 'P-12347',
-      planogramName: 'Travel Essentials',
-      sizeVariant: 'S',
-      currentLifecycle: 'Executed',
-      lastUpdated: '2025-05-20',
-      scheduledTransition: '2025-08-15'
-    }
-  ];
 
   const getLifecycleBadgeVariant = (state: string) => {
     switch (state) {
@@ -94,7 +58,7 @@ const LifecycleManagement = () => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedItems(assignments.map(a => a.id));
+      setSelectedItems(mockAssignments.slice(0, 20).map(a => a.id));
     } else {
       setSelectedItems([]);
     }
@@ -107,6 +71,9 @@ const LifecycleManagement = () => {
     setNewLifecycleStatus('');
     setScheduledDate('');
   };
+
+  // Display first 20 assignments for better performance
+  const displayedAssignments = mockAssignments.slice(0, 20);
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -187,7 +154,7 @@ const LifecycleManagement = () => {
                     <div className="space-y-2">
                       <p className="text-sm font-medium">Selected assignments:</p>
                       <div className="max-h-40 overflow-y-auto space-y-1">
-                        {assignments
+                        {displayedAssignments
                           .filter(a => selectedItems.includes(a.id))
                           .map(assignment => (
                             <div key={assignment.id} className="text-sm text-muted-foreground p-2 bg-muted rounded">
@@ -211,7 +178,12 @@ const LifecycleManagement = () => {
         {/* Assignments Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Planogram Assignments</CardTitle>
+            <CardTitle>
+              Planogram Assignments
+              <Badge variant="outline" className="ml-2">
+                Showing 20 of {mockAssignments.length}
+              </Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -219,7 +191,7 @@ const LifecycleManagement = () => {
                 <TableRow>
                   <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedItems.length === assignments.length}
+                      checked={selectedItems.length === displayedAssignments.length}
                       onCheckedChange={(checked: boolean) => handleSelectAll(checked)}
                     />
                   </TableHead>
@@ -234,7 +206,7 @@ const LifecycleManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {assignments.map((assignment) => (
+                {displayedAssignments.map((assignment) => (
                   <TableRow key={assignment.id}>
                     <TableCell>
                       <Checkbox
@@ -244,7 +216,7 @@ const LifecycleManagement = () => {
                     </TableCell>
                     <TableCell className="font-medium">
                       <Link 
-                        to={`/stores/${assignment.id}`}
+                        to={`/stores/${assignment.storeId}`}
                         className="text-blue-600 hover:underline"
                       >
                         {assignment.store}
@@ -266,8 +238,8 @@ const LifecycleManagement = () => {
                       <Badge variant="secondary">{assignment.sizeVariant}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getLifecycleBadgeVariant(assignment.currentLifecycle)}>
-                        {assignment.currentLifecycle}
+                      <Badge variant={getLifecycleBadgeVariant(assignment.lifecycleState)}>
+                        {assignment.lifecycleState}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -300,7 +272,7 @@ const LifecycleManagement = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-600">
-                {assignments.filter(a => a.currentLifecycle === 'Prepared').length}
+                {mockAssignments.filter(a => a.lifecycleState === 'Prepared').length}
               </div>
               <p className="text-xs text-muted-foreground">Ready to Plan</p>
             </CardContent>
@@ -308,7 +280,7 @@ const LifecycleManagement = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-yellow-600">
-                {assignments.filter(a => a.currentLifecycle === 'Planned').length}
+                {mockAssignments.filter(a => a.lifecycleState === 'Planned').length}
               </div>
               <p className="text-xs text-muted-foreground">Ready to Execute</p>
             </CardContent>
@@ -316,7 +288,7 @@ const LifecycleManagement = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-green-600">
-                {assignments.filter(a => a.currentLifecycle === 'Executed').length}
+                {mockAssignments.filter(a => a.lifecycleState === 'Executed').length}
               </div>
               <p className="text-xs text-muted-foreground">Currently Active</p>
             </CardContent>
@@ -324,7 +296,7 @@ const LifecycleManagement = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-purple-600">
-                {assignments.filter(a => a.scheduledTransition).length}
+                {mockAssignments.filter(a => a.scheduledTransition).length}
               </div>
               <p className="text-xs text-muted-foreground">Scheduled Transitions</p>
             </CardContent>

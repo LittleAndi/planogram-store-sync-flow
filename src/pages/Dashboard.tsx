@@ -20,46 +20,9 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Filter, Eye, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-// Mock data for demonstration
-const mockAssignments = [
-  {
-    id: 1,
-    store: 'Downtown Store',
-    storeCategory: 'Medium',
-    planogramId: 'P-12345',
-    planogramName: 'Summer Drinks',
-    sizeVariant: 'M',
-    lifecycleState: 'Executed',
-    lastUpdated: '2025-06-15',
-    assignedBy: 'John Doe'
-  },
-  {
-    id: 2,
-    store: 'Mall Location',
-    storeCategory: 'Large',
-    planogramId: 'P-12346',
-    planogramName: 'Winter Fashion',
-    sizeVariant: 'L',
-    lifecycleState: 'Planned',
-    lastUpdated: '2025-07-01',
-    assignedBy: 'Jane Smith'
-  },
-  {
-    id: 3,
-    store: 'Airport Shop',
-    storeCategory: 'Small',
-    planogramId: 'P-12347',
-    planogramName: 'Travel Essentials',
-    sizeVariant: 'S',
-    lifecycleState: 'Phased Out',
-    lastUpdated: '2025-05-20',
-    assignedBy: 'Mike Johnson'
-  }
-];
+import { mockAssignments } from '../data/mockData';
 
 const Dashboard = () => {
   const [filters, setFilters] = useState({
@@ -78,6 +41,16 @@ const Dashboard = () => {
       default: return 'secondary';
     }
   };
+
+  // Filter assignments based on current filters
+  const filteredAssignments = mockAssignments.filter(assignment => {
+    return (
+      (!filters.planogramId || assignment.planogramId.toLowerCase().includes(filters.planogramId.toLowerCase()) || assignment.planogramName.toLowerCase().includes(filters.planogramId.toLowerCase())) &&
+      (!filters.storeName || assignment.store.toLowerCase().includes(filters.storeName.toLowerCase())) &&
+      (!filters.storeCategory || filters.storeCategory === '*' || assignment.storeCategory === filters.storeCategory) &&
+      (!filters.lifecycleState || filters.lifecycleState === '*' || assignment.lifecycleState === filters.lifecycleState)
+    );
+  });
 
   const stats = {
     activeAssignments: mockAssignments.filter(a => a.lifecycleState === 'Executed').length,
@@ -191,7 +164,11 @@ const Dashboard = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="w-full" variant="outline">
+              <Button 
+                className="w-full" 
+                variant="outline"
+                onClick={() => setFilters({ planogramId: '', storeName: '', storeCategory: '', lifecycleState: '' })}
+              >
                 Clear Filters
               </Button>
             </CardContent>
@@ -200,7 +177,12 @@ const Dashboard = () => {
           {/* Main Grid */}
           <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Planogram-Store Assignments</CardTitle>
+              <CardTitle>
+                Planogram-Store Assignments 
+                <Badge variant="outline" className="ml-2">
+                  {filteredAssignments.length} of {mockAssignments.length}
+                </Badge>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -216,11 +198,11 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockAssignments.map((assignment) => (
+                  {filteredAssignments.slice(0, 20).map((assignment) => (
                     <TableRow key={assignment.id}>
                       <TableCell className="font-medium">
                         <Link 
-                          to={`/stores/${assignment.id}`}
+                          to={`/stores/${assignment.storeId}`}
                           className="text-blue-600 hover:underline"
                         >
                           {assignment.store}
