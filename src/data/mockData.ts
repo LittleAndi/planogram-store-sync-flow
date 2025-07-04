@@ -51,25 +51,51 @@ export const mockProducts = Array.from({ length: 150 }, (_, i) => {
     'Electronics', 'Apparel', 'Health & Wellness'
   ];
   
-  const displayTypes = ['unit', 'case', 'tray', 'display'];
-  
   return {
     id: `PRD-${(i + 1).toString().padStart(4, '0')}`,
     name: productNames[i % productNames.length],
     brand: brands[i % brands.length],
     category: categories[i % categories.length],
     sku: `SKU${(i + 1).toString().padStart(6, '0')}`,
-    price: parseFloat((Math.random() * 50 + 1).toFixed(2)),
-    displayType: displayTypes[i % displayTypes.length],
-    shelfPosition: {
-      shelf: Math.floor(i / 10) % 5 + 1,
-      position: (i % 10) + 1,
-      facings: Math.floor(Math.random() * 4) + 1
-    }
+    price: parseFloat((Math.random() * 50 + 1).toFixed(2))
   };
 });
 
-// Mock data for planograms
+// Generate sample attributes for planograms
+const generatePlanogramAttributes = () => {
+  const attributes = [];
+  const attributeTypes = [
+    'Target Demographic', 'Seasonality', 'Promotion Type', 'Brand Focus', 'Price Point',
+    'Category Mix', 'Shelf Utilization', 'Visual Theme', 'Traffic Pattern', 'Store Format'
+  ];
+  
+  const values = {
+    'Target Demographic': ['Young Adults', 'Families', 'Seniors', 'Professionals', 'Students'],
+    'Seasonality': ['Spring', 'Summer', 'Fall', 'Winter', 'Holiday'],
+    'Promotion Type': ['BOGO', 'Percentage Off', 'Bundle Deal', 'Clearance', 'New Product'],
+    'Brand Focus': ['Premium', 'Value', 'Organic', 'Local', 'National'],
+    'Price Point': ['Economy', 'Mid-Range', 'Premium', 'Luxury', 'Mixed'],
+    'Category Mix': ['Single Category', 'Cross Category', 'Complementary', 'Seasonal Mix', 'Trending'],
+    'Shelf Utilization': ['High Density', 'Standard', 'Spacious', 'Eye Level Focus', 'Full Height'],
+    'Visual Theme': ['Colorful', 'Minimalist', 'Brand Focused', 'Category Grouped', 'Price Focused'],
+    'Traffic Pattern': ['High Traffic', 'Medium Traffic', 'Low Traffic', 'End Cap', 'Corner'],
+    'Store Format': ['Compact', 'Standard', 'Large Format', 'Express', 'Flagship']
+  };
+  
+  // Generate 5-8 random attributes
+  const numAttributes = 5 + Math.floor(Math.random() * 4);
+  const selectedTypes = attributeTypes.sort(() => 0.5 - Math.random()).slice(0, numAttributes);
+  
+  selectedTypes.forEach(type => {
+    const possibleValues = values[type];
+    const value = possibleValues[Math.floor(Math.random() * possibleValues.length)];
+    attributes.push({ description: type, value });
+  });
+  
+  return attributes;
+};
+
+// Mock data for planograms with new structure
 export const mockPlanograms = Array.from({ length: 30 }, (_, i) => {
   const planogramId = `P-${(12345 + i).toString()}`;
   const planogramNames = [
@@ -82,19 +108,68 @@ export const mockPlanograms = Array.from({ length: 30 }, (_, i) => {
     'Gaming Zone', 'Toy Section', 'Kitchen Appliances', 'Outdoor Gear', 'Fitness Equipment'
   ];
   
-  const lifecycles = ['Prepared', 'Planned', 'Executed', 'Phased Out'];
-  const sizeVariants = ['XS', 'S', 'M', 'L', 'XL'];
+  const categories = ['Food & Beverage', 'Personal Care', 'Electronics', 'Apparel', 'Home & Garden', 'Health & Wellness'];
+  const sizes = ['Small', 'Medium', 'Large', 'Extra Large'];
+  const statuses = ['Live', 'Pending', 'Other', 'Historic'];
+  
+  const effectiveFromDate = new Date(2025, 0 + (i % 12), 1 + (i % 28));
+  const effectiveToDate = new Date(2025, 6 + (i % 6), 1 + (i % 28));
   
   return {
     id: planogramId,
+    version: `${Math.floor(i / 10) + 1}.${(i % 10) + 1}`,
     name: planogramNames[i],
+    category: categories[i % categories.length],
+    size: sizes[i % sizes.length],
+    width: 120 + (i % 5) * 30, // 120-240 cm
+    height: 180 + (i % 3) * 20, // 180-220 cm
+    depth: 40 + (i % 2) * 20, // 40-60 cm
+    effectiveDateFrom: effectiveFromDate.toISOString().split('T')[0],
+    effectiveDateTo: effectiveToDate.toISOString().split('T')[0],
+    status: statuses[i % statuses.length],
+    dbStatus: i % 5, // 0-4 representing different database statuses
+    attributes: generatePlanogramAttributes(),
+    shelfId: `SH-${(1000 + i).toString()}`,
+    shelfLocationId: `LOC-${(2000 + i).toString()}`,
+    shelfX: 10 + (i % 10) * 5,
+    shelfY: 20 + (i % 8) * 10,
+    shelfZ: 0 + (i % 3) * 5,
     description: `Optimized layout for ${planogramNames[i].toLowerCase()} featuring strategic product positioning and improved customer flow.`,
     createdDate: new Date(2025, (i % 12), 1 + (i % 28)).toISOString().split('T')[0],
-    version: `${Math.floor(i / 10) + 1}.${(i % 10) + 1}`,
-    sizeVariants: sizeVariants.slice(0, 3 + (i % 3)), // Each planogram has 3-5 size variants
-    lifecycle: lifecycles[i % lifecycles.length],
     imageUrl: `https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=600&fit=crop&auto=format`,
-    productIds: mockProducts.slice(i * 5, (i * 5) + 8 + (i % 5)).map(p => p.id) // 8-13 products per planogram
+    positionIds: Array.from({ length: 8 + (i % 5) }, (_, j) => `POS-${i.toString().padStart(3, '0')}-${j.toString().padStart(3, '0')}`)
+  };
+});
+
+// Mock data for product positions
+export const mockProductPositions = Array.from({ length: 400 }, (_, i) => {
+  const planogramIndex = Math.floor(i / 13); // ~13 positions per planogram
+  const planogram = mockPlanograms[planogramIndex] || mockPlanograms[0];
+  const product = mockProducts[i % mockProducts.length];
+  const merchandisingStyles = ['Display', 'Unit', 'Case', 'Tray'];
+  
+  return {
+    id: `POS-${planogramIndex.toString().padStart(3, '0')}-${(i % 13).toString().padStart(3, '0')}`,
+    planogramId: planogram.id,
+    productId: product.id,
+    productName: product.name,
+    productBrand: product.brand,
+    productCategory: product.category,
+    productSku: product.sku,
+    productPrice: product.price,
+    horizontalFacings: 1 + (i % 4), // 1-4 facings
+    verticalFacings: 1 + (i % 3), // 1-3 facings
+    depthFacings: 1 + (i % 2), // 1-2 facings
+    linear: parseFloat((5 + (i % 20)).toFixed(1)), // 5-25 cm
+    width: parseFloat((8 + (i % 15)).toFixed(1)), // 8-23 cm
+    depth: parseFloat((12 + (i % 10)).toFixed(1)), // 12-22 cm
+    height: parseFloat((15 + (i % 25)).toFixed(1)), // 15-40 cm
+    replenishmentMin: 5 + (i % 15), // 5-20 units
+    replenishmentMax: 20 + (i % 30), // 20-50 units
+    merchandisingStyle: merchandisingStyles[i % merchandisingStyles.length],
+    locationX: parseFloat(((i % 10) * 12).toFixed(1)), // 0-108 cm
+    locationY: parseFloat(((i % 6) * 30).toFixed(1)), // 0-150 cm
+    locationZ: parseFloat(((i % 4) * 15).toFixed(1)) // 0-45 cm
   };
 });
 
@@ -104,7 +179,8 @@ export const mockAssignments = Array.from({ length: 1500 }, (_, i) => {
   const planogram = mockPlanograms[i % mockPlanograms.length];
   const lifecycles = ['Prepared', 'Planned', 'Executed', 'Phased Out'];
   const assignedBy = ['John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'David Brown', 'Lisa Davis', 'Tom Anderson', 'Emily Taylor'];
-  const sizeVariant = planogram.sizeVariants[i % planogram.sizeVariants.length];
+  const sizeVariants = ['XS', 'S', 'M', 'L', 'XL'];
+  const sizeVariant = sizeVariants[i % sizeVariants.length];
   
   return {
     id: i + 1,
