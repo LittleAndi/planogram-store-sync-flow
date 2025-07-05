@@ -37,7 +37,7 @@ const Dashboard = () => {
     planogramId: '',
     storeName: '',
     storeCategory: '',
-    lifecycleState: ''
+    lifecycleState: 'Executed'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
