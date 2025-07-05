@@ -1,9 +1,16 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -17,12 +24,27 @@ import { mockStores, mockAssignments } from '../data/mockData';
 
 const StoreDetails = () => {
   const { id } = useParams();
+  const [statusFilter, setStatusFilter] = useState('Executed');
 
   // Find the store by ID
   const store = mockStores.find(s => s.id === id) || mockStores[0];
   
   // Get assignments for this store
   const storeAssignments = mockAssignments.filter(a => a.storeId === store.id);
+
+  // Filter assignments based on selected status
+  const filteredAssignments = useMemo(() => {
+    if (statusFilter === 'All') {
+      return storeAssignments;
+    }
+    return storeAssignments.filter(a => a.lifecycleState === statusFilter);
+  }, [storeAssignments, statusFilter]);
+
+  // Get unique statuses for the filter dropdown
+  const uniqueStatuses = useMemo(() => {
+    const statuses = [...new Set(storeAssignments.map(a => a.lifecycleState))];
+    return ['All', ...statuses.sort()];
+  }, [storeAssignments]);
 
   const getLifecycleBadgeVariant = (state: string) => {
     switch (state) {
@@ -103,10 +125,27 @@ const StoreDetails = () => {
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>Assigned Planograms</CardTitle>
-              <Badge variant="outline">
-                {storeAssignments.length} planograms
-              </Badge>
+              <div className="flex items-center gap-4">
+                <CardTitle>Assigned Planograms</CardTitle>
+                <Badge variant="outline">
+                  {filteredAssignments.length} planograms
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Filter by Status:</span>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueStatuses.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -123,7 +162,7 @@ const StoreDetails = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {storeAssignments.map((assignment) => (
+                {filteredAssignments.map((assignment) => (
                   <TableRow key={assignment.id}>
                     <TableCell className="font-medium">
                       <Link 
